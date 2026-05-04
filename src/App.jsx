@@ -1,28 +1,27 @@
-import{useState}from”react”;
-const P={bg:”#0e0c0a”,surface:”#161310”,card:”#1c1813”,cardBorder:”#2a221a”,cream:”#e8d5a3”,creamDark:”#c4b07a”,textMuted:”#7a6a52”,textDim:”#4a3f30”};
-const IP=[{id:1,nome:“Farinha de Trigo”,atual:15,minimo:20,perigoso:10,unidade:“kg”},{id:2,nome:“Acucar”,atual:8,minimo:15,perigoso:5,unidade:“kg”},{id:3,nome:“Fermento”,atual:300,minimo:500,perigoso:150,unidade:“g”},{id:4,nome:“Manteiga”,atual:3,minimo:5,perigoso:2,unidade:“kg”},{id:5,nome:“Ovos”,atual:24,minimo:30,perigoso:12,unidade:“un”}];
-function gS(i){if(i.atual<=i.perigoso)return”perigo”;if(i.atual<=i.minimo)return”alerta”;return”ok”;}
-const SC={ok:{label:“Estavel”,dot:”#4caf7d”,bar:”#4caf7d”,tag:”#1a3326”,tagText:”#4caf7d”},alerta:{label:“Baixo”,dot:”#f0b429”,bar:”#f0b429”,tag:”#3a2a0a”,tagText:”#f0b429”},perigo:{label:“Critico”,dot:”#ff6b6b”,bar:”#ff6b6b”,tag:”#3a0f0f”,tagText:”#ff6b6b”}};
+import{useState}from"react";
+const P={bg:"#0e0c0a",surface:"#161310",card:"#1c1813",cardBorder:"#2a221a",cream:"#e8d5a3",creamDark:"#c4b07a",textMuted:"#7a6a52",textDim:"#4a3f30"};
+const IP=[{id:1,nome:"Farinha de Trigo",atual:15,minimo:20,perigoso:10,unidade:"kg"},{id:2,nome:"Acucar",atual:8,minimo:15,perigoso:5,unidade:"kg"},{id:3,nome:"Fermento",atual:300,minimo:500,perigoso:150,unidade:"g"},{id:4,nome:"Manteiga",atual:3,minimo:5,perigoso:2,unidade:"kg"},{id:5,nome:"Ovos",atual:24,minimo:30,perigoso:12,unidade:"un"}];
+function gS(i){if(i.atual<=i.perigoso)return"perigo";if(i.atual<=i.minimo)return"alerta";return"ok";}
+const SC={ok:{label:"Estavel",dot:"#4caf7d",bar:"#4caf7d",tag:"#1a3326",tagText:"#4caf7d"},alerta:{label:"Baixo",dot:"#f0b429",bar:"#f0b429",tag:"#3a2a0a",tagText:"#f0b429"},perigo:{label:"Critico",dot:"#ff6b6b",bar:"#ff6b6b",tag:"#3a0f0f",tagText:"#ff6b6b"}};
 export default function App(){
 const[produtos,setP]=useState(IP);
-const[tab,setTab]=useState(“estoque”);
+const[tab,setTab]=useState("estoque");
 const[showForm,setSF]=useState(false);
 const[editando,setE]=useState(null);
-const[form,setForm]=useState({nome:””,atual:””,minimo:””,perigoso:””,unidade:“un”});
+const[form,setForm]=useState({nome:"",atual:"",minimo:"",perigoso:"",unidade:"un"});
 const[atualizando,setA]=useState(null);
-const[novoValor,setNV]=useState(””);
+const[novoValor,setNV]=useState("");
 const[historico,setH]=useState([]);
-const perigo=produtos.filter(p=>gS(p)===“perigo”);
-const alertas=produtos.filter(p=>gS(p)===“alerta”);
-const criticos=[…perigo,…alertas];
-function addLog(msg){const hora=new Date().toLocaleTimeString(“pt-BR”,{hour:“2-digit”,minute:“2-digit”});setH(h=>[{msg,hora},…h].slice(0,30));}
-function salvar(){if(!form.nome||form.atual===””||form.minimo===””||form.perigoso===””)return;const item={id:editando?.id||Date.now(),nome:form.nome,atual:+form.atual,minimo:+form.minimo,perigoso:+form.perigoso,unidade:form.unidade};if(editando){setP(p=>p.map(x=>x.id===editando.id?item:x));addLog(“Editado: “+item.nome);}else{setP(p=>[…p,item]);addLog(“Adicionado: “+item.nome);}setForm({nome:””,atual:””,minimo:””,perigoso:””,unidade:“un”});setSF(false);setE(null);}
-function remover(id){const p=produtos.find(x=>x.id===id);setP(ps=>ps.filter(x=>x.id!==id));addLog(“Removido: “+p.nome);}
+const perigo=produtos.filter(p=>gS(p)==="perigo");
+const alertas=produtos.filter(p=>gS(p)==="alerta");
+const criticos=[...perigo,...alertas];
+function addLog(msg){const hora=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});setH(h=>[{msg,hora},...h].slice(0,30));}
+function salvar(){if(!form.nome||form.atual===""||form.minimo===""||form.perigoso==="")return;const item={id:editando?.id||Date.now(),nome:form.nome,atual:+form.atual,minimo:+form.minimo,perigoso:+form.perigoso,unidade:form.unidade};if(editando){setP(p=>p.map(x=>x.id===editando.id?item:x));addLog("Editado: "+item.nome);}else{setP(p=>[...p,item]);addLog("Adicionado: "+item.nome);}setForm({nome:"",atual:"",minimo:"",perigoso:"",unidade:"un"});setSF(false);setE(null);}
+function remover(id){const p=produtos.find(x=>x.id===id);setP(ps=>ps.filter(x=>x.id!==id));addLog("Removido: "+p.nome);}
 function editar(p){setE(p);setForm({nome:p.nome,atual:p.atual,minimo:p.minimo,perigoso:p.perigoso,unidade:p.unidade});setSF(true);}
-function atualizar(id){const val=parseFloat(novoValor);if(isNaN(val))return;const p=produtos.find(x=>x.id===id);setP(ps=>ps.map(x=>x.id===id?{…x,atual:val}:x));addLog(“Atualizado: “+p.nome);setA(null);setNV(””);}
-const inp={width:“100%”,padding:“12px 14px”,borderRadius:10,border:“1px solid #2a221a”,background:”#161310”,color:”#e8d5a3”,fontSize:15,boxSizing:“border-box”,outline:“none”,fontFamily:“inherit”};
+function atualizar(id){const val=parseFloat(novoValor);if(isNaN(val))return;const p=produtos.find(x=>x.id===id);setP(ps=>ps.map(x=>x.id===id?{...x,atual:val}:x));addLog("Atualizado: "+p.nome);setA(null);setNV("");}
+const inp={width:"100%",padding:"12px 14px",borderRadius:10,border:"1px solid #2a221a",background:"#161310",color:"#e8d5a3",fontSize:15,boxSizing:"border-box",outline:"none",fontFamily:"inherit"};
 return(
-
 <div style={{minHeight:"100vh",background:P.bg,color:P.cream,fontFamily:"Georgia,serif"}}>
 <div style={{padding:"20px 20px 0"}}>
 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
