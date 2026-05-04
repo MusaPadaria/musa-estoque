@@ -262,8 +262,3 @@ return (
 );
 }
 
-cd ~/musa-estoque && wget -O src/App.jsx https://raw.githubusercontent.com/MusaPadaria/musa-estoque/main/src/App.jsx && npm run build
-
-
-
-
