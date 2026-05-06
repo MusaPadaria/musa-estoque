@@ -1,218 +1,222 @@
-import{useState,useMemo,useEffect}from”react”;
-const P={bg:”#0e0c0a”,surface:”#161310”,card:”#1c1813”,cream:”#e8d5a3”,creamDark:”#c4b07a”,textMuted:”#7a6a52”,textDim:”#4a3f30”};
-const NUMEROS=[“5585996237360”,“5521966721884”];
-const ADMINS=[“Henrique”,“Marina”,“Luana”];
-const UNIDADES=[“un”,“porcao”,“kg”,“g”,“L”,“ml”,“cx”,“pct”,“sc”];
-const ST={ok:{label:“OK”,bar:”#4caf7d”,tag:”#1a3326”,tagText:”#4caf7d”},alerta:{label:“Baixo”,bar:”#f0b429”,tag:”#3a2a0a”,tagText:”#f0b429”},perigo:{label:“Critico”,bar:”#ff6b6b”,tag:”#3a0f0f”,tagText:”#ff6b6b”}};
-const VAL_ST={ok:{label:“Dentro da validade”,icon:“✅”,cor:”#4caf7d”,bg:”#1a3326”},prestes:{label:“Prestes a vencer”,icon:“⚠️”,cor:”#f0b429”,bg:”#3a2a0a”},critico:{label:“Vence hoje/amanha”,icon:“🚨”,cor:”#ff6b6b”,bg:”#3a0f0f”},vencido:{label:“VENCIDO”,icon:“💀”,cor:”#ff4444”,bg:”#2a0808”},sem:{label:“Sem validade”,icon:“📅”,cor:”#7a6a52”,bg:”#1c1813”}};
-const TIPO_COR={atualizacao:”#4caf7d”,adicao:”#6ab0f0”,remocao:”#ff6b6b”,edicao:”#f0b429”,critico:”#ff6b6b”};
-const TIPO_ICON={atualizacao:“📦”,adicao:“➕”,remocao:“🗑️”,edicao:“✏️”,critico:“🚨”};
+import{useState,useMemo,useEffect}from"react";
+const API="http://187.77.57.211:3001";
+const P={bg:"#0e0c0a",surface:"#161310",card:"#1c1813",cream:"#e8d5a3",creamDark:"#c4b07a",textMuted:"#7a6a52",textDim:"#4a3f30"};
+const NUMEROS=["5585996237360","5521966721884"];
+const ADMINS=["Henrique","Marina","Luana"];
+const UNIDADES=["un","porcao","kg","g","L","ml","cx","pct","sc"];
+const ST={ok:{label:"OK",bar:"#4caf7d",tag:"#1a3326",tagText:"#4caf7d"},alerta:{label:"Baixo",bar:"#f0b429",tag:"#3a2a0a",tagText:"#f0b429"},perigo:{label:"Critico",bar:"#ff6b6b",tag:"#3a0f0f",tagText:"#ff6b6b"}};
+const VAL_ST={ok:{label:"Dentro da validade",icon:"✅",cor:"#4caf7d",bg:"#1a3326"},prestes:{label:"Prestes a vencer",icon:"⚠️",cor:"#f0b429",bg:"#3a2a0a"},critico:{label:"Vence hoje/amanha",icon:"🚨",cor:"#ff6b6b",bg:"#3a0f0f"},vencido:{label:"VENCIDO",icon:"💀",cor:"#ff4444",bg:"#2a0808"},sem:{label:"Sem validade",icon:"📅",cor:"#7a6a52",bg:"#1c1813"}};
+const TIPO_COR={atualizacao:"#4caf7d",adicao:"#6ab0f0",remocao:"#ff6b6b",edicao:"#f0b429",critico:"#ff6b6b"};
+const TIPO_ICON={atualizacao:"📦",adicao:"➕",remocao:"🗑️",edicao:"✏️",critico:"🚨"};
 const CATS_INIT=[
-{id:“proteinas”,nome:“Proteinas”,icon:“🥩”,cor:”#ef9a9a”,produtos:[
-{id:401,nome:“Camarao”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:402,nome:“Carne do sol”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:403,nome:“Carne moida”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:404,nome:“Charque”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:405,nome:“Cupim”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:406,nome:“Frango”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:407,nome:“Ovos”,atual:0,minimo:30,perigoso:10,unidade:“un”},
-{id:408,nome:“Ovos caipira”,atual:0,minimo:60,perigoso:20,unidade:“un”},
-{id:409,nome:“Pernil suino”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
+{id:"proteinas",nome:"Proteinas",icon:"🥩",cor:"#ef9a9a",produtos:[
+{id:401,nome:"Camarao",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:402,nome:"Carne do sol",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:403,nome:"Carne moida",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:404,nome:"Charque",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:405,nome:"Cupim",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:406,nome:"Frango",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:407,nome:"Ovos",atual:0,minimo:30,perigoso:10,unidade:"un"},
+{id:408,nome:"Ovos caipira",atual:0,minimo:60,perigoso:20,unidade:"un"},
+{id:409,nome:"Pernil suino",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
 ]},
-{id:“frios”,nome:“Frios”,icon:“🧀”,cor:”#fff176”,produtos:[
-{id:501,nome:“Bacon fatiado”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:502,nome:“Calabresa”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:503,nome:“Goma para tapioca”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:504,nome:“Manteiga”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:505,nome:“Manteiga da terra”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:506,nome:“Mortadela”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:507,nome:“Nata”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:508,nome:“Peito de peru”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:509,nome:“Presunto”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:510,nome:“Queijo coalho”,atual:0,minimo:1,perigoso:0,unidade:“porcao”},
-{id:511,nome:“Queijo gorgonzola”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:512,nome:“Queijo mussarela”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:513,nome:“Queijo parmesao”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:514,nome:“Queijo prato”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:515,nome:“Requeijao”,atual:0,minimo:1,perigoso:0,unidade:“un”},
+{id:"frios",nome:"Frios",icon:"🧀",cor:"#fff176",produtos:[
+{id:501,nome:"Bacon fatiado",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:502,nome:"Calabresa",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:503,nome:"Goma para tapioca",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:504,nome:"Manteiga",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:505,nome:"Manteiga da terra",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:506,nome:"Mortadela",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:507,nome:"Nata",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:508,nome:"Peito de peru",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:509,nome:"Presunto",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:510,nome:"Queijo coalho",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
+{id:511,nome:"Queijo gorgonzola",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:512,nome:"Queijo mussarela",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:513,nome:"Queijo parmesao",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:514,nome:"Queijo prato",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:515,nome:"Requeijao",atual:0,minimo:1,perigoso:0,unidade:"un"},
 ]},
-{id:“mercearia_liquida”,nome:“Mercearia Liquida”,icon:“🧴”,cor:”#64b5f6”,produtos:[
-{id:301,nome:“Azeite extra virgem”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:302,nome:“Azeite trufado”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:303,nome:“Coalhada integral”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:304,nome:“Creme culinario”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:305,nome:“Ketchup”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:306,nome:“Leite integral”,atual:0,minimo:1,perigoso:0,unidade:“L”},
-{id:307,nome:“Mostarda”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:308,nome:“Oleo”,atual:0,minimo:1,perigoso:0,unidade:“L”},
-{id:309,nome:“Shoyu”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:310,nome:“Vinagre”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:311,nome:“Vinho branco”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:312,nome:“Vinho tinto”,atual:0,minimo:1,perigoso:0,unidade:“un”},
+{id:"mercearia_liquida",nome:"Mercearia Liquida",icon:"🧴",cor:"#64b5f6",produtos:[
+{id:301,nome:"Azeite extra virgem",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:302,nome:"Azeite trufado",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:303,nome:"Coalhada integral",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:304,nome:"Creme culinario",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:305,nome:"Ketchup",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:306,nome:"Leite integral",atual:0,minimo:1,perigoso:0,unidade:"L"},
+{id:307,nome:"Mostarda",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:308,nome:"Oleo",atual:0,minimo:1,perigoso:0,unidade:"L"},
+{id:309,nome:"Shoyu",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:310,nome:"Vinagre",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:311,nome:"Vinho branco",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:312,nome:"Vinho tinto",atual:0,minimo:1,perigoso:0,unidade:"un"},
 ]},
-{id:“sementes”,nome:“Sementes e Temperos”,icon:“🌿”,cor:”#4caf7d”,produtos:[
-{id:1,nome:“Alho frito”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:2,nome:“Aveia em flocos”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:3,nome:“Castanha do para”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:4,nome:“Castanha granulada”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:5,nome:“Castanha inteira”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:6,nome:“Cereal de milho”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:7,nome:“Chia”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:8,nome:“Coloral”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:9,nome:“Cravo em po”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:10,nome:“Erva doce”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:11,nome:“Folhas de louro”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:12,nome:“Gengibre em po”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:13,nome:“Gergelim branco”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:14,nome:“Gergelim preto”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:15,nome:“Linhaca dourada”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:16,nome:“Milho desidratado”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:17,nome:“Nos moscada”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:18,nome:“Oregano”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:19,nome:“Paprica defumada”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:20,nome:“Passas”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:21,nome:“Pimenta em graos”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:22,nome:“Semente de abobora”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:23,nome:“Semente de girassol”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
+{id:"sementes",nome:"Sementes e Temperos",icon:"🌿",cor:"#4caf7d",produtos:[
+{id:1,nome:"Alho frito",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:2,nome:"Aveia em flocos",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:3,nome:"Castanha do para",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:4,nome:"Castanha granulada",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:5,nome:"Castanha inteira",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:6,nome:"Cereal de milho",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:7,nome:"Chia",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:8,nome:"Coloral",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:9,nome:"Cravo em po",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:10,nome:"Erva doce",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:11,nome:"Folhas de louro",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:12,nome:"Gengibre em po",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:13,nome:"Gergelim branco",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:14,nome:"Gergelim preto",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:15,nome:"Linhaca dourada",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:16,nome:"Milho desidratado",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:17,nome:"Nos moscada",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:18,nome:"Oregano",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:19,nome:"Paprica defumada",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:20,nome:"Passas",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:21,nome:"Pimenta em graos",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:22,nome:"Semente de abobora",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:23,nome:"Semente de girassol",atual:0,minimo:1,perigoso:0,unidade:"kg"},
 ]},
-{id:“hortifruti”,nome:“Hortifruti”,icon:“🥦”,cor:”#81c784”,produtos:[
-{id:101,nome:“Abacate”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:102,nome:“Abacaxi”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:103,nome:“Alecrim”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:104,nome:“Alface crespa”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:105,nome:“Alface roxa”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:106,nome:“Azeitona sem caroco”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:107,nome:“Banana da terra”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:108,nome:“Banana prata”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:109,nome:“Batata doce fina”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:110,nome:“Batata inglesa”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:111,nome:“Cenoura”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:112,nome:“Coco seco”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:113,nome:“Laranja”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:114,nome:“Limao”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:115,nome:“Limao siciliano”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:116,nome:“Macaxeira”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:117,nome:“Mamao”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:118,nome:“Manga”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:119,nome:“Maracuja”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:120,nome:“Melao”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:121,nome:“Minho”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:122,nome:“Morango congelado”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:123,nome:“Morango fresco”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:124,nome:“Porto belo”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:125,nome:“Rucula”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:126,nome:“Shimeji”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:127,nome:“Shiitake”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:128,nome:“Tomate cereja”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:129,nome:“Tomate salada”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:130,nome:“Tomilho”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:131,nome:“Uva roxa”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:132,nome:“Uva verde”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
+{id:"hortifruti",nome:"Hortifruti",icon:"🥦",cor:"#81c784",produtos:[
+{id:101,nome:"Abacate",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:102,nome:"Abacaxi",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:103,nome:"Alecrim",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:104,nome:"Alface crespa",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:105,nome:"Alface roxa",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:106,nome:"Azeitona sem caroco",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:107,nome:"Banana da terra",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:108,nome:"Banana prata",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:109,nome:"Batata doce fina",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:110,nome:"Batata inglesa",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:111,nome:"Cenoura",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:112,nome:"Coco seco",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:113,nome:"Laranja",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:114,nome:"Limao",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:115,nome:"Limao siciliano",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:116,nome:"Macaxeira",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:117,nome:"Mamao",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:118,nome:"Manga",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:119,nome:"Maracuja",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:120,nome:"Melao",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:121,nome:"Minho",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:122,nome:"Morango congelado",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:123,nome:"Morango fresco",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:124,nome:"Porto belo",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:125,nome:"Rucula",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:126,nome:"Shimeji",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:127,nome:"Shiitake",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:128,nome:"Tomate cereja",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:129,nome:"Tomate salada",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:130,nome:"Tomilho",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:131,nome:"Uva roxa",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:132,nome:"Uva verde",atual:0,minimo:1,perigoso:0,unidade:"kg"},
 ]},
-{id:“mercearia_seca”,nome:“Mercearia Seca”,icon:“🛒”,cor:”#ffb74d”,produtos:[
-{id:201,nome:“Acucar cristal”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:202,nome:“Acucar mascavo”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:203,nome:“Acucar refinado”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:204,nome:“Acucar sache salao”,atual:0,minimo:1,perigoso:0,unidade:“cx”},
-{id:205,nome:“Amido”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:206,nome:“Cafe especial”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:207,nome:“Cafe funcionario”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:208,nome:“Cafe soluvel”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:209,nome:“Cuscuz”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:210,nome:“Flor de sal”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:211,nome:“Leite em po”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
-{id:212,nome:“Sal”,atual:0,minimo:1,perigoso:0,unidade:“kg”},
+{id:"mercearia_seca",nome:"Mercearia Seca",icon:"🛒",cor:"#ffb74d",produtos:[
+{id:201,nome:"Acucar cristal",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:202,nome:"Acucar mascavo",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:203,nome:"Acucar refinado",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:204,nome:"Acucar sache salao",atual:0,minimo:1,perigoso:0,unidade:"cx"},
+{id:205,nome:"Amido",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:206,nome:"Cafe especial",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:207,nome:"Cafe funcionario",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:208,nome:"Cafe soluvel",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:209,nome:"Cuscuz",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:210,nome:"Flor de sal",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:211,nome:"Leite em po",atual:0,minimo:1,perigoso:0,unidade:"kg"},
+{id:212,nome:"Sal",atual:0,minimo:1,perigoso:0,unidade:"kg"},
 ]},
-{id:“descartaveis”,nome:“Descartaveis”,icon:“📦”,cor:”#b0bec5”,produtos:[
-{id:601,nome:“Bobina 20x30”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:602,nome:“Bobina 30x40”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:603,nome:“Bobina impressora”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:604,nome:“Bobina maquina cartao”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:605,nome:“Bobina termica”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:606,nome:“Canudo”,atual:0,minimo:1,perigoso:0,unidade:“pct”},
-{id:607,nome:“Durex”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:608,nome:“Embalagem biscoito”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:609,nome:“Embalagem brownie”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:610,nome:“Embalagem H03”,atual:0,minimo:15,perigoso:5,unidade:“un”},
-{id:611,nome:“Embalagem pao de mel”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:612,nome:“Embalagens bolo”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:613,nome:“Esponja”,atual:0,minimo:5,perigoso:2,unidade:“un”},
-{id:614,nome:“Fibraca”,atual:0,minimo:5,perigoso:2,unidade:“un”},
-{id:615,nome:“Filme PVC”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:616,nome:“Filtro de cafe 103”,atual:0,minimo:3,perigoso:1,unidade:“pct”},
-{id:617,nome:“Guardanapo clientes”,atual:0,minimo:5,perigoso:2,unidade:“pct”},
-{id:618,nome:“Isqueiro cozinha”,atual:0,minimo:2,perigoso:1,unidade:“un”},
-{id:619,nome:“Luvas de vinil”,atual:0,minimo:1,perigoso:0,unidade:“pct”},
-{id:620,nome:“Papel aluminio”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:621,nome:“Papel interfolhado”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:622,nome:“Papel manteiga”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:623,nome:“Papel toalha”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:624,nome:“Perfex”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:625,nome:“Pote 145g”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:626,nome:“Pote 250g”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:627,nome:“Pote 1kg”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:628,nome:“Saco de lixo 60l”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:629,nome:“Saco de lixo 200l”,atual:0,minimo:1,perigoso:0,unidade:“un”},
-{id:630,nome:“Sacola Musa Delivery”,atual:0,minimo:10,perigoso:5,unidade:“un”},
-{id:631,nome:“Touca descartavel”,atual:0,minimo:1,perigoso:0,unidade:“pct”},
+{id:"descartaveis",nome:"Descartaveis",icon:"📦",cor:"#b0bec5",produtos:[
+{id:601,nome:"Bobina 20x30",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:602,nome:"Bobina 30x40",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:603,nome:"Bobina impressora",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:604,nome:"Bobina maquina cartao",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:605,nome:"Bobina termica",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:606,nome:"Canudo",atual:0,minimo:1,perigoso:0,unidade:"pct"},
+{id:607,nome:"Durex",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:608,nome:"Embalagem biscoito",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:609,nome:"Embalagem brownie",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:610,nome:"Embalagem H03",atual:0,minimo:15,perigoso:5,unidade:"un"},
+{id:611,nome:"Embalagem pao de mel",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:612,nome:"Embalagens bolo",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:613,nome:"Esponja",atual:0,minimo:5,perigoso:2,unidade:"un"},
+{id:614,nome:"Fibraca",atual:0,minimo:5,perigoso:2,unidade:"un"},
+{id:615,nome:"Filme PVC",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:616,nome:"Filtro de cafe 103",atual:0,minimo:3,perigoso:1,unidade:"pct"},
+{id:617,nome:"Guardanapo clientes",atual:0,minimo:5,perigoso:2,unidade:"pct"},
+{id:618,nome:"Isqueiro cozinha",atual:0,minimo:2,perigoso:1,unidade:"un"},
+{id:619,nome:"Luvas de vinil",atual:0,minimo:1,perigoso:0,unidade:"pct"},
+{id:620,nome:"Papel aluminio",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:621,nome:"Papel interfolhado",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:622,nome:"Papel manteiga",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:623,nome:"Papel toalha",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:624,nome:"Perfex",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:625,nome:"Pote 145g",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:626,nome:"Pote 250g",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:627,nome:"Pote 1kg",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:628,nome:"Saco de lixo 60l",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:629,nome:"Saco de lixo 200l",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:630,nome:"Sacola Musa Delivery",atual:0,minimo:10,perigoso:5,unidade:"un"},
+{id:631,nome:"Touca descartavel",atual:0,minimo:1,perigoso:0,unidade:"pct"},
 ]},
-{id:“bebidas”,nome:“Bebidas”,icon:“🥤”,cor:”#80deea”,produtos:[
-{id:701,nome:“Agua sem gas 330ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:702,nome:“Agua com gas 330ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:703,nome:“Coca-Cola lata 350ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:704,nome:“Coca-Cola Zero lata 350ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:705,nome:“Guarana Antarctica lata 350ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:706,nome:“Guarana Antarctica Zero lata 350ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:707,nome:“Sao Geraldo lata 350ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:708,nome:“Sao Geraldo Zero lata 350ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:709,nome:“Agua de coco 300ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:710,nome:“Heineken long neck 330ml”,atual:0,minimo:6,perigoso:2,unidade:“un”},
-{id:711,nome:“Jungle melancia e limao 500ml”,atual:0,minimo:4,perigoso:2,unidade:“un”},
-{id:712,nome:“Jungle abacaxi e hortela 500ml”,atual:0,minimo:4,perigoso:2,unidade:“un”},
+{id:"bebidas",nome:"Bebidas",icon:"🥤",cor:"#80deea",produtos:[
+{id:701,nome:"Agua sem gas 330ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:702,nome:"Agua com gas 330ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:703,nome:"Coca-Cola lata 350ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:704,nome:"Coca-Cola Zero lata 350ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:705,nome:"Guarana Antarctica lata 350ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:706,nome:"Guarana Antarctica Zero lata 350ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:707,nome:"Sao Geraldo lata 350ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:708,nome:"Sao Geraldo Zero lata 350ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:709,nome:"Agua de coco 300ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:710,nome:"Heineken long neck 330ml",atual:0,minimo:6,perigoso:2,unidade:"un"},
+{id:711,nome:"Jungle melancia e limao 500ml",atual:0,minimo:4,perigoso:2,unidade:"un"},
+{id:712,nome:"Jungle abacaxi e hortela 500ml",atual:0,minimo:4,perigoso:2,unidade:"un"},
 ]},
 ];
 const PORC_INIT={proteinas:[
-{id:“frango”,nome:“Frango Desfiado”,icon:“🍗”,gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:””},
-{id:“carne_moida”,nome:“Carne Moida”,icon:“🥩”,gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:””},
-{id:“carne_sol”,nome:“Carne do Sol Desfiada”,icon:“🥩”,gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:””},
-{id:“cupim”,nome:“Cupim Desfiado”,icon:“🥩”,gramatura:200,porcoes:0,minimo:8,perigoso:3,perdas:””},
-{id:“mortadela”,nome:“Mortadela Fatiada”,icon:“🍖”,gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:””},
+{id:"frango",nome:"Frango Desfiado",icon:"🍗",gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:""},
+{id:"carne_moida",nome:"Carne Moida",icon:"🥩",gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:""},
+{id:"carne_sol",nome:"Carne do Sol Desfiada",icon:"🥩",gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:""},
+{id:"cupim",nome:"Cupim Desfiado",icon:"🥩",gramatura:200,porcoes:0,minimo:8,perigoso:3,perdas:""},
+{id:"mortadela",nome:"Mortadela Fatiada",icon:"🍖",gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:""},
 ],frios:[
-{id:“coalho_ralado”,nome:“Queijo Coalho Ralado”,icon:“🧀”,gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:””},
-{id:“coalho_fatiado”,nome:“Queijo Coalho Fatiado”,icon:“🧀”,gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:””},
+{id:"coalho_ralado",nome:"Queijo Coalho Ralado",icon:"🧀",gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:""},
+{id:"coalho_fatiado",nome:"Queijo Coalho Fatiado",icon:"🧀",gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:""},
 ]};
 const VITRINE_INIT=[
-{id:“v1”,nome:“Focaccia de tomate seco”,produzida:0,vendida:0,minimo:5,validade:””,validadeMinDias:2},
-{id:“v2”,nome:“Focaccia de gorgonzola”,produzida:0,vendida:0,minimo:5,validade:””,validadeMinDias:2},
-{id:“v3”,nome:“Salgado de frango”,produzida:0,vendida:0,minimo:10,validade:””,validadeMinDias:2},
-{id:“v4”,nome:“Salgado de calabresa”,produzida:0,vendida:0,minimo:10,validade:””,validadeMinDias:2},
-{id:“v5”,nome:“Salgado de carne de sol”,produzida:0,vendida:0,minimo:10,validade:””,validadeMinDias:2},
-{id:“v6”,nome:“Empada de frango”,produzida:0,vendida:0,minimo:10,validade:””,validadeMinDias:2},
-{id:“v7”,nome:“Brownie”,produzida:0,vendida:0,minimo:8,validade:””,validadeMinDias:3},
-{id:“v8”,nome:“Cookies”,produzida:0,vendida:0,minimo:12,validade:””,validadeMinDias:3},
-{id:“v9”,nome:“Bolo de cenoura”,produzida:0,vendida:0,minimo:2,validade:””,validadeMinDias:3},
-{id:“v10”,nome:“Bolo da chef de brigadeiro”,produzida:0,vendida:0,minimo:2,validade:””,validadeMinDias:3},
-{id:“v11”,nome:“Bolo da chef de maracuja”,produzida:0,vendida:0,minimo:2,validade:””,validadeMinDias:3},
-{id:“v12”,nome:“Brigadeiros”,produzida:0,vendida:0,minimo:20,validade:””,validadeMinDias:2},
-{id:“v13”,nome:“Pao de mel”,produzida:0,vendida:0,minimo:10,validade:””,validadeMinDias:3},
+{id:"v1",nome:"Focaccia de tomate seco",produzida:0,vendida:0,minimo:5,validade:"",validadeMinDias:2},
+{id:"v2",nome:"Focaccia de gorgonzola",produzida:0,vendida:0,minimo:5,validade:"",validadeMinDias:2},
+{id:"v3",nome:"Salgado de frango",produzida:0,vendida:0,minimo:10,validade:"",validadeMinDias:2},
+{id:"v4",nome:"Salgado de calabresa",produzida:0,vendida:0,minimo:10,validade:"",validadeMinDias:2},
+{id:"v5",nome:"Salgado de carne de sol",produzida:0,vendida:0,minimo:10,validade:"",validadeMinDias:2},
+{id:"v6",nome:"Empada de frango",produzida:0,vendida:0,minimo:10,validade:"",validadeMinDias:2},
+{id:"v7",nome:"Brownie",produzida:0,vendida:0,minimo:8,validade:"",validadeMinDias:3},
+{id:"v8",nome:"Cookies",produzida:0,vendida:0,minimo:12,validade:"",validadeMinDias:3},
+{id:"v9",nome:"Bolo de cenoura",produzida:0,vendida:0,minimo:2,validade:"",validadeMinDias:3},
+{id:"v10",nome:"Bolo da chef de brigadeiro",produzida:0,vendida:0,minimo:2,validade:"",validadeMinDias:3},
+{id:"v11",nome:"Bolo da chef de maracuja",produzida:0,vendida:0,minimo:2,validade:"",validadeMinDias:3},
+{id:"v12",nome:"Brigadeiros",produzida:0,vendida:0,minimo:20,validade:"",validadeMinDias:2},
+{id:"v13",nome:"Pao de mel",produzida:0,vendida:0,minimo:10,validade:"",validadeMinDias:3},
 ];
-function gS(i){if(i.atual<=i.perigoso)return”perigo”;if(i.atual<=i.minimo)return”alerta”;return”ok”;}
-function gSP(i){if(i.porcoes<=i.perigoso)return”perigo”;if(i.porcoes<=i.minimo)return”alerta”;return”ok”;}
+function gS(i){if(i.atual<=i.perigoso)return"perigo";if(i.atual<=i.minimo)return"alerta";return"ok";}
+function gSP(i){if(i.porcoes<=i.perigoso)return"perigo";if(i.porcoes<=i.minimo)return"alerta";return"ok";}
 function getValSt(validade,dias){
-if(!validade)return”sem”;
+if(!validade)return"sem";
 const hoje=new Date();hoje.setHours(0,0,0,0);
-const val=new Date(validade+“T00:00:00”);
+const val=new Date(validade+"T00:00:00");
 const diff=Math.floor((val-hoje)/(1000*60*60*24));
-if(diff<0)return”vencido”;if(diff<=1)return”critico”;if(diff<=(dias||2))return”prestes”;return”ok”;
+if(diff<0)return"vencido";if(diff<=1)return"critico";if(diff<=(dias||2))return"prestes";return"ok";
 }
-function sendWA(msg){NUMEROS.forEach(n=>{window.open(“https://wa.me/”+n+”?text=”+encodeURIComponent(msg),”_blank”);});}
-function nowStr(){const d=new Date();return d.toLocaleDateString(“pt-BR”,{day:“2-digit”,month:“2-digit”})+” as “+d.toLocaleTimeString(“pt-BR”,{hour:“2-digit”,minute:“2-digit”});}
+function sendWA(msg){NUMEROS.forEach(n=>{window.open("https://wa.me/"+n+"?text="+encodeURIComponent(msg),"_blank");});}
+function nowStr(){const d=new Date();return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" as "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});}
+async function apiGet(path){try{const r=await fetch(API+path);return await r.json();}catch(e){return null;}}
+async function apiPost(path,data){try{const r=await fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});return await r.json();}catch(e){return null;}}
+async function apiPut(path,data){try{const r=await fetch(API+path,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});return await r.json();}catch(e){return null;}}
+async function apiDelete(path){try{await fetch(API+path,{method:"DELETE"});}catch(e){}}
 
-// –– COMPONENTS OUTSIDE APP TO PREVENT RE-RENDER ISSUES ––
+// ---- COMPONENTS OUTSIDE APP TO PREVENT RE-RENDER ISSUES ----
 function Modal({show,onClose,title,children}){
 if(!show)return null;
 return(
-
 <div onClick={e=>e.target===e.currentTarget&&onClose()} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"flex-end",zIndex:300}}>
 <div style={{background:"#161310",width:"100%",borderRadius:"18px 18px 0 0",padding:"20px 16px 50px",maxHeight:"92vh",overflowY:"auto",border:"1px solid #2a221a",borderBottom:"none"}}>
 <div style={{width:34,height:3,background:"#4a3f30",borderRadius:99,margin:"0 auto 20px"}}/>
@@ -227,65 +231,129 @@ return(
 }
 
 export default function App(){
-useEffect(()=>{const l=document.createElement(“link”);l.href=“https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap”;l.rel=“stylesheet”;document.head.appendChild(l);document.body.style.fontFamily=“Plus Jakarta Sans,sans-serif”;},[]);
-const[inputNome,setInputNome]=useState(””);
-const[usuario,setUsuario]=useState(””);
+useEffect(()=>{const l=document.createElement("link");l.href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap";l.rel="stylesheet";document.head.appendChild(l);document.body.style.fontFamily="Plus Jakarta Sans,sans-serif";},[]);
+const[inputNome,setInputNome]=useState("");
+const[usuario,setUsuario]=useState("");
 const[logado,setLogado]=useState(false);
 const[cats,setCats]=useState(CATS_INIT);
 const[porc,setPorc]=useState(PORC_INIT);
-const[porcAtiva,setPorcAtiva]=useState({proteinas:“frango”,frios:“coalho_ralado”});
-const[tab,setTab]=useState(“estoque”);
-const[catAtiva,setCatAtiva]=useState(“proteinas”);
-const[busca,setBusca]=useState(””);
+const[porcAtiva,setPorcAtiva]=useState({proteinas:"frango",frios:"coalho_ralado"});
+const[tab,setTab]=useState("estoque");
+const[catAtiva,setCatAtiva]=useState("proteinas");
+const[busca,setBusca]=useState("");
 const[atualizando,setAtualizando]=useState(null);
-const[novoValor,setNovoValor]=useState(””);
+const[novoValor,setNovoValor]=useState("");
 const[hist,setHist]=useState([]);
-const[filtroUser,setFiltroUser]=useState(“Todos”);
+const[filtroUser,setFiltroUser]=useState("Todos");
 const[avisos,setAvisos]=useState([]);
 const[avisosLidos,setAvisosLidos]=useState([]);
 const[vitrine,setVitrine]=useState(VITRINE_INIT);
 const[editVitrine,setEditVitrine]=useState(null);
-const[vitrineForm,setVitrineForm]=useState({produzida:””,vendida:””,minimo:””,validade:””,validadeMinDias:””});
+const[vitrineForm,setVitrineForm]=useState({produzida:"",vendida:"",minimo:"",validade:"",validadeMinDias:""});
 const[showAddVitrine,setShowAddVitrine]=useState(false);
-const[addVitrineForm,setAddVitrineForm]=useState({nome:””,minimo:“1”,validadeMinDias:“2”});
+const[addVitrineForm,setAddVitrineForm]=useState({nome:"",minimo:"1",validadeMinDias:"2"});
 const[cozinha,setCozinha]=useState([]);
 const[showCozForm,setShowCozForm]=useState(false);
-const[cozInsumo,setCozInsumo]=useState(””);
-const[cozUnd,setCozUnd]=useState(””);
-const[cozPorcoes,setCozPorcoes]=useState(””);
-const[cozPeso,setCozPeso]=useState(””);
-const[cozPerdas,setCozPerdas]=useState(””);
-const[cozAss,setCozAss]=useState(””);
+const[cozInsumo,setCozInsumo]=useState("");
+const[cozUnd,setCozUnd]=useState("");
+const[cozPorcoes,setCozPorcoes]=useState("");
+const[cozPeso,setCozPeso]=useState("");
+const[cozPerdas,setCozPerdas]=useState("");
+const[cozAss,setCozAss]=useState("");
 const[cozEnviar,setCozEnviar]=useState(false);
-const[cozNomeVitrine,setCozNomeVitrine]=useState(””);
+const[cozNomeVitrine,setCozNomeVitrine]=useState("");
 const[showProdForm,setShowProdForm]=useState(false);
 const[editProdId,setEditProdId]=useState(null);
 const[editProdCat,setEditProdCat]=useState(null);
-const[prodNome,setProdNome]=useState(””);
-const[prodAtual,setProdAtual]=useState(””);
-const[prodMin,setProdMin]=useState(””);
-const[prodPer,setProdPer]=useState(””);
-const[prodUnd,setProdUnd]=useState(“un”);
+const[prodNome,setProdNome]=useState("");
+const[prodAtual,setProdAtual]=useState("");
+const[prodMin,setProdMin]=useState("");
+const[prodPer,setProdPer]=useState("");
+const[prodUnd,setProdUnd]=useState("un");
 const[showPorcForm,setShowPorcForm]=useState(false);
 const[editPorcCat,setEditPorcCat]=useState(null);
 const[editPorcId,setEditPorcId]=useState(null);
-const[porcPorcoes,setPorcPorcoes]=useState(””);
-const[porcPerdas,setPorcPerdas]=useState(””);
-const[porcMin,setPorcMin]=useState(””);
-const[porcPer,setPorcPer]=useState(””);
+const[porcPorcoes,setPorcPorcoes]=useState("");
+const[porcPerdas,setPorcPerdas]=useState("");
+const[porcMin,setPorcMin]=useState("");
+const[porcPer,setPorcPer]=useState("");
 const[showGram,setShowGram]=useState(false);
-const[gramVal,setGramVal]=useState(””);
+const[gramVal,setGramVal]=useState("");
 const[gramCat,setGramCat]=useState(null);
 const[gramId,setGramId]=useState(null);
 const[showAvisoForm,setShowAvisoForm]=useState(false);
-const[avisoTitulo,setAvisoTitulo]=useState(””);
-const[avisoMsg,setAvisoMsg]=useState(””);
-const[avisoPrior,setAvisoPrior]=useState(“normal”);
+const[avisoTitulo,setAvisoTitulo]=useState("");
+const[avisoMsg,setAvisoMsg]=useState("");
+const[avisoPrior,setAvisoPrior]=useState("normal");
 
 const isAdmin=ADMINS.includes(usuario);
-const todosProd=useMemo(()=>cats.flatMap(c=>c.produtos.map(p=>({…p,catId:c.id,catNome:c.nome,catCor:c.cor,catIcon:c.icon}))),[cats]);
-const perigo=todosProd.filter(p=>gS(p)===“perigo”);
-const alertas=todosProd.filter(p=>gS(p)===“alerta”);
+
+useEffect(()=>{
+if(!logado)return;
+// Load cats/estoque
+apiGet("/estoque").then(data=>{
+if(data&&data.length>0){
+const saved=JSON.parse(data[0].value||"null");
+if(saved)setCats(saved);
+}
+});
+// Load vitrine
+apiGet("/vitrine").then(data=>{
+if(data&&data.length>0){
+const saved=JSON.parse(data[0].value||"null");
+if(saved)setVitrine(saved);
+}
+});
+// Load historico
+apiGet("/historico").then(data=>{
+if(data&&data.length>0)setHist(data.sort((a,b)=>b.id-a.id));
+});
+// Load avisos
+apiGet("/avisos").then(data=>{
+if(data&&data.length>0)setAvisos(data.sort((a,b)=>b.id-a.id));
+});
+// Load porcionamento
+apiGet("/porcionamento").then(data=>{
+if(data&&data.length>0){
+const saved=JSON.parse(data[0].value||"null");
+if(saved)setPorc(saved);
+}
+});
+// Load cozinha
+apiGet("/cozinha").then(data=>{
+if(data&&data.length>0)setCozinha(data.sort((a,b)=>b.id-a.id));
+});
+},[logado]);
+
+// Save cats when changed
+useEffect(()=>{
+if(!logado)return;
+apiGet("/estoque").then(data=>{
+if(data&&data.length>0){apiPut("/estoque/"+data[0].id,{id:data[0].id,value:JSON.stringify(cats)});}
+else{apiPost("/estoque",{value:JSON.stringify(cats)});}
+});
+},[cats]);
+
+// Save vitrine when changed
+useEffect(()=>{
+if(!logado)return;
+apiGet("/vitrine").then(data=>{
+if(data&&data.length>0){apiPut("/vitrine/"+data[0].id,{id:data[0].id,value:JSON.stringify(vitrine)});}
+else{apiPost("/vitrine",{value:JSON.stringify(vitrine)});}
+});
+},[vitrine]);
+
+// Save porcionamento when changed
+useEffect(()=>{
+if(!logado)return;
+apiGet("/porcionamento").then(data=>{
+if(data&&data.length>0){apiPut("/porcionamento/"+data[0].id,{id:data[0].id,value:JSON.stringify(porc)});}
+else{apiPost("/porcionamento",{value:JSON.stringify(porc)});}
+});
+},[porc]);
+const todosProd=useMemo(()=>cats.flatMap(c=>c.produtos.map(p=>({...p,catId:c.id,catNome:c.nome,catCor:c.cor,catIcon:c.icon}))),[cats]);
+const perigo=todosProd.filter(p=>gS(p)==="perigo");
+const alertas=todosProd.filter(p=>gS(p)==="alerta");
 const catObj=cats.find(c=>c.id===catAtiva);
 const prodsFiltrados=useMemo(()=>{
 if(!catObj)return[];
@@ -293,83 +361,87 @@ const l=catObj.produtos.slice().sort((a,b)=>a.nome.localeCompare(b.nome));
 if(!busca.trim())return l;
 return l.filter(p=>p.nome.toLowerCase().includes(busca.toLowerCase()));
 },[catObj,busca]);
-const usuarios=[“Todos”,…new Set(hist.map(h=>h.usuario))];
-const histFiltrado=filtroUser===“Todos”?hist:hist.filter(h=>h.usuario===filtroUser);
+const usuarios=["Todos",...new Set(hist.map(h=>h.usuario))];
+const histFiltrado=filtroUser==="Todos"?hist:hist.filter(h=>h.usuario===filtroUser);
 const avisosNaoLidos=avisos.filter(a=>!avisosLidos.includes(a.id)).length;
-const todosPorc=[…(porc.proteinas||[]).map(p=>({…p,cat:“proteinas”})),…(porc.frios||[]).map(p=>({…p,cat:“frios”}))];
-const porcCriticos=todosPorc.filter(p=>gSP(p)===“perigo”).length;
-const validadesCriticas=vitrine.filter(v=>[“critico”,“vencido”].includes(getValSt(v.validade,v.validadeMinDias))).length;
+const todosPorc=[...(porc.proteinas||[]).map(p=>({...p,cat:"proteinas"})),...(porc.frios||[]).map(p=>({...p,cat:"frios"}))];
+const porcCriticos=todosPorc.filter(p=>gSP(p)==="perigo").length;
+const validadesCriticas=vitrine.filter(v=>["critico","vencido"].includes(getValSt(v.validade,v.validadeMinDias))).length;
 
-function log(msg,tipo,detalhe){setHist(h=>[{msg,tipo,detalhe,usuario,completo:nowStr()},…h].slice(0,100));}
+function log(msg,tipo,detalhe){
+const entry={msg,tipo,detalhe,usuario,completo:nowStr()};
+setHist(h=>[entry,...h].slice(0,100));
+apiPost("/historico",entry);
+}
 function login(){if(inputNome.trim().length<2)return;setUsuario(inputNome.trim());setLogado(true);}
 
 function atualizarProd(catId,prodId){
 const val=parseFloat(novoValor);if(isNaN(val))return;
 const cat=cats.find(c=>c.id===catId);const prod=cat.produtos.find(p=>p.id===prodId);
-const updated={…prod,atual:val};
-setCats(cs=>cs.map(c=>c.id!==catId?c:{…c,produtos:c.produtos.map(p=>p.id!==prodId?p:updated)}));
-log(“Estoque atualizado”,gS(updated)===“perigo”?“critico”:“atualizacao”,cat.nome+” - “+prod.nome+”: “+prod.atual+”->”+val+” “+prod.unidade);
-if(val===0)sendWA(”*ESTOQUE ZERADO MUSA* ❌\n\n”+cat.nome+” - “+prod.nome+”\nResponsavel: “+usuario+”\n”+nowStr());
-else if(gS(updated)===“perigo”)sendWA(”*ALERTA MUSA* 🚨\n\n”+cat.nome+” - “+prod.nome+”\nQtd: “+val+” “+prod.unidade+” (min: “+prod.minimo+”)\nResponsavel: “+usuario+”\n”+nowStr());
-setAtualizando(null);setNovoValor(””);
+const updated={...prod,atual:val};
+setCats(cs=>cs.map(c=>c.id!==catId?c:{...c,produtos:c.produtos.map(p=>p.id!==prodId?p:updated)}));
+log("Estoque atualizado",gS(updated)==="perigo"?"critico":"atualizacao",cat.nome+" - "+prod.nome+": "+prod.atual+"->"+val+" "+prod.unidade);
+if(val===0)sendWA("*ESTOQUE ZERADO MUSA* ❌\n\n"+cat.nome+" - "+prod.nome+"\nResponsavel: "+usuario+"\n"+nowStr());
+else if(gS(updated)==="perigo")sendWA("*ALERTA MUSA* 🚨\n\n"+cat.nome+" - "+prod.nome+"\nQtd: "+val+" "+prod.unidade+" (min: "+prod.minimo+")\nResponsavel: "+usuario+"\n"+nowStr());
+setAtualizando(null);setNovoValor("");
 }
 
 function salvarProd(){
-if(!prodNome||prodAtual===””||prodMin===””||prodPer===””)return;
+if(!prodNome||prodAtual===""||prodMin===""||prodPer==="")return;
 const cat=cats.find(c=>c.id===editProdCat);
 if(editProdId){
-const item={…cat.produtos.find(p=>p.id===editProdId),nome:prodNome,atual:+prodAtual,minimo:+prodMin,perigoso:+prodPer,unidade:prodUnd};
-setCats(cs=>cs.map(c=>c.id===editProdCat?{…c,produtos:c.produtos.map(p=>p.id===editProdId?item:p)}:c));
-log(“Produto editado”,“edicao”,cat.nome+” - “+item.nome);
+const item={...cat.produtos.find(p=>p.id===editProdId),nome:prodNome,atual:+prodAtual,minimo:+prodMin,perigoso:+prodPer,unidade:prodUnd};
+setCats(cs=>cs.map(c=>c.id===editProdCat?{...c,produtos:c.produtos.map(p=>p.id===editProdId?item:p)}:c));
+log("Produto editado","edicao",cat.nome+" - "+item.nome);
 }else{
 const item={id:Date.now(),nome:prodNome,atual:+prodAtual,minimo:+prodMin,perigoso:+prodPer,unidade:prodUnd};
-setCats(cs=>cs.map(c=>c.id===editProdCat?{…c,produtos:[…c.produtos,item]}:c));
-log(“Produto adicionado”,“adicao”,cat.nome+” - “+item.nome);
+setCats(cs=>cs.map(c=>c.id===editProdCat?{...c,produtos:[...c.produtos,item]}:c));
+log("Produto adicionado","adicao",cat.nome+" - "+item.nome);
 }
 setShowProdForm(false);
 }
 
 function removerProd(catId,prodId){
 const cat=cats.find(c=>c.id===catId);const prod=cat.produtos.find(p=>p.id===prodId);
-setCats(cs=>cs.map(c=>c.id===catId?{…c,produtos:c.produtos.filter(p=>p.id!==prodId)}:c));
-log(“Produto removido”,“remocao”,cat.nome+” - “+prod.nome);
+setCats(cs=>cs.map(c=>c.id===catId?{...c,produtos:c.produtos.filter(p=>p.id!==prodId)}:c));
+log("Produto removido","remocao",cat.nome+" - "+prod.nome);
 }
 
 function salvarPorc(){
 const catP=porc[editPorcCat];if(!catP)return;
 const item=catP.find(i=>i.id===editPorcId);if(!item)return;
 const val=+porcPorcoes||0;
-const updated={…item,porcoes:val,perdas:porcPerdas,minimo:+porcMin||item.minimo,perigoso:+porcPer||item.perigoso};
-setPorc(ps=>({…ps,[editPorcCat]:ps[editPorcCat].map(i=>i.id===editPorcId?updated:i)}));
-log(“Porcionamento atualizado”,“atualizacao”,item.nome+” porcoes: “+val);
-if(val===0)sendWA(”*PORCIONAMENTO ZERADO MUSA* ❌\n\n”+item.nome+” zerou!\nResponsavel: “+usuario+”\n”+nowStr());
-else if(gSP(updated)===“perigo”)sendWA(”*ALERTA PORCIONAMENTO MUSA* ✂️\n\n”+item.nome+”\nPorcoes: “+val+” (min: “+updated.minimo+”)\nGramatura: “+item.gramatura+“g\nResponsavel: “+usuario+”\n”+nowStr());
+const updated={...item,porcoes:val,perdas:porcPerdas,minimo:+porcMin||item.minimo,perigoso:+porcPer||item.perigoso};
+setPorc(ps=>({...ps,[editPorcCat]:ps[editPorcCat].map(i=>i.id===editPorcId?updated:i)}));
+log("Porcionamento atualizado","atualizacao",item.nome+" porcoes: "+val);
+if(val===0)sendWA("*PORCIONAMENTO ZERADO MUSA* ❌\n\n"+item.nome+" zerou!\nResponsavel: "+usuario+"\n"+nowStr());
+else if(gSP(updated)==="perigo")sendWA("*ALERTA PORCIONAMENTO MUSA* ✂️\n\n"+item.nome+"\nPorcoes: "+val+" (min: "+updated.minimo+")\nGramatura: "+item.gramatura+"g\nResponsavel: "+usuario+"\n"+nowStr());
 setShowPorcForm(false);
 }
 
 function salvarCozinha(){
 if(!cozInsumo)return;
 const reg={insumo:cozInsumo,und:cozUnd,porcoes:cozPorcoes,pesoFinal:cozPeso,perdas:cozPerdas,assinatura:cozAss,enviarVitrine:cozEnviar,nomeVitrine:cozNomeVitrine,data:nowStr()};
-setCozinha(cs=>[reg,…cs]);
-log(“Fabricacao registrada”,“adicao”,cozInsumo);
+setCozinha(cs=>[reg,...cs]);
+apiPost("/cozinha",reg);
+log("Fabricacao registrada","adicao",cozInsumo);
 if(cozEnviar){
 const nomeV=(cozNomeVitrine&&cozNomeVitrine.trim())?cozNomeVitrine.trim():cozInsumo;
 const qtd=+cozPorcoes||1;
 setVitrine(vs=>{
 const idx=vs.findIndex(v=>v.nome.toLowerCase()===nomeV.toLowerCase());
-if(idx>=0){const novo=[…vs];novo[idx]={…novo[idx],produzida:novo[idx].produzida+qtd};return novo;}
-return[…vs,{id:“coz_”+Date.now(),nome:nomeV,produzida:qtd,vendida:0,minimo:1,validade:””,validadeMinDias:2}];
+if(idx>=0){const novo=[...vs];novo[idx]={...novo[idx],produzida:novo[idx].produzida+qtd};return novo;}
+return[...vs,{id:"coz_"+Date.now(),nome:nomeV,produzida:qtd,vendida:0,minimo:1,validade:"",validadeMinDias:2}];
 });
-log(“Enviado para vitrine”,“adicao”,nomeV+” (”+qtd+“un)”);
+log("Enviado para vitrine","adicao",nomeV+" ("+qtd+"un)");
 }
 setShowCozForm(false);
-setCozInsumo(””);setCozUnd(””);setCozPorcoes(””);setCozPeso(””);setCozPerdas(””);setCozEnviar(false);setCozNomeVitrine(””);
+setCozInsumo("");setCozUnd("");setCozPorcoes("");setCozPeso("");setCozPerdas("");setCozEnviar(false);setCozNomeVitrine("");
 }
 
-const inp={width:“100%”,padding:“12px 14px”,borderRadius:10,border:“1px solid #2a221a”,background:”#161310”,color:”#e8d5a3”,fontSize:15,boxSizing:“border-box”,outline:“none”,fontFamily:“inherit”};
+const inp={width:"100%",padding:"12px 14px",borderRadius:10,border:"1px solid #2a221a",background:"#161310",color:"#e8d5a3",fontSize:15,boxSizing:"border-box",outline:"none",fontFamily:"inherit"};
 
 if(!logado){return(
-
 <div style={{minHeight:"100vh",background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:20,fontFamily:"Plus Jakarta Sans,sans-serif",color:P.cream}}>
 <div style={{width:"100%",maxWidth:360}}>
 <div style={{textAlign:"center",marginBottom:32}}>
@@ -388,10 +460,9 @@ if(!logado){return(
 </div>
 );}
 
-const TABS=[[“estoque”,“Estoque”],[“vitrine”,“Vitrine”],[“cozinha”,“Cozinha”],[“alertas”,“Alertas”],[“avisos”,“Avisos”],[“historico”,“Hist.”]];
+const TABS=[["estoque","Estoque"],["vitrine","Vitrine"],["cozinha","Cozinha"],["alertas","Alertas"],["avisos","Avisos"],["historico","Hist."]];
 
 return(
-
 <div style={{minHeight:"100vh",background:P.bg,color:P.cream,fontFamily:"Plus Jakarta Sans,sans-serif"}}>
 <div style={{padding:"14px 14px 0"}}>
 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
@@ -430,8 +501,7 @@ return(
 
 <div style={{padding:"0 12px 120px"}}>
 
-{tab===“estoque”&&(
-
+{tab==="estoque"&&(
 <div>
 <div style={{display:"flex",gap:4,overflowX:"auto",paddingBottom:7,marginBottom:9}}>
 {cats.map(c=>(
@@ -537,8 +607,7 @@ return(
 </div>
 )}
 
-{tab===“vitrine”&&(
-
+{tab==="vitrine"&&(
 <div>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
 <div style={{fontSize:12,color:P.textMuted}}>Producao diaria da vitrine</div>
@@ -594,8 +663,7 @@ return(
 </div>
 )}
 
-{tab===“cozinha”&&(
-
+{tab==="cozinha"&&(
 <div>
 <div style={{fontSize:12,color:P.textMuted,marginBottom:10,padding:"8px 11px",background:P.card,border:"1px solid #2a221a",borderRadius:9}}>Registre a fabricacao. Marque se o produto vai para a vitrine.</div>
 <button onClick={()=>{setCozInsumo("");setCozUnd("");setCozPorcoes("");setCozPeso("");setCozPerdas("");setCozAss(usuario);setCozEnviar(false);setCozNomeVitrine("");setShowCozForm(true);}} style={{width:"100%",padding:11,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",marginBottom:10}}>+ Novo registro</button>
@@ -643,8 +711,7 @@ return(
 </div>
 )}
 
-{tab===“alertas”&&(
-
+{tab==="alertas"&&(
 <div>
 {perigo.length===0&&porcCriticos===0&&validadesCriticas===0?(<div style={{textAlign:"center",padding:"50px 20px"}}><div style={{fontSize:46,marginBottom:10}}>🌿</div><div style={{fontSize:17,color:"#4caf7d",fontWeight:700}}>Tudo OK!</div><div style={{fontSize:12,color:P.textMuted,marginTop:5}}>Estoque e validades dentro do normal.</div></div>):(
 <div>
@@ -675,8 +742,7 @@ return(<div key={cat.id} style={{marginBottom:13}}>
 </div>
 )}
 
-{tab===“avisos”&&(
-
+{tab==="avisos"&&(
 <div>
 {isAdmin&&<button onClick={()=>{setAvisoTitulo("");setAvisoMsg("");setAvisoPrior("normal");setShowAvisoForm(true);}} style={{width:"100%",padding:11,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",marginBottom:10}}>+ Novo aviso</button>}
 {avisos.length===0?(<div style={{textAlign:"center",padding:"40px 20px",color:P.textMuted}}><div style={{fontSize:34,marginBottom:7}}>📋</div><div style={{fontSize:12}}>Nenhum aviso.</div></div>):(
@@ -707,8 +773,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 </div>
 )}
 
-{tab===“historico”&&(
-
+{tab==="historico"&&(
 <div>
 <select value={filtroUser} onChange={e=>setFiltroUser(e.target.value)} style={{...inp,marginBottom:9,fontSize:12}}>
 {usuarios.map(u=><option key={u} value={u}>{u}</option>)}
@@ -724,8 +789,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 )}
 </div>
 
-<Modal show={showProdForm} onClose={()=>setShowProdForm(false)} title={editProdId?“Editar Produto”:“Novo Produto”}>
-
+<Modal show={showProdForm} onClose={()=>setShowProdForm(false)} title={editProdId?"Editar Produto":"Novo Produto"}>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Nome</label><input type="text" value={prodNome} onChange={e=>setProdNome(e.target.value)} style={inp} placeholder="Nome do produto"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Quantidade atual</label><input type="number" value={prodAtual} onChange={e=>setProdAtual(e.target.value)} style={inp} placeholder="0"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Estoque minimo</label><input type="number" value={prodMin} onChange={e=>setProdMin(e.target.value)} style={inp} placeholder="0"/></div>
@@ -734,8 +798,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 <button onClick={salvarProd} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>{editProdId?"Salvar":"Adicionar"}</button>
 </Modal>
 
-<Modal show={showPorcForm} onClose={()=>setShowPorcForm(false)} title=“Atualizar Porcionamento”>
-
+<Modal show={showPorcForm} onClose={()=>setShowPorcForm(false)} title="Atualizar Porcionamento">
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Quantidade de porcoes</label><input type="number" value={porcPorcoes} onChange={e=>setPorcPorcoes(e.target.value)} style={inp} placeholder="0"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Perdas (opcional)</label><input type="text" value={porcPerdas} onChange={e=>setPorcPerdas(e.target.value)} style={inp} placeholder="Perdas"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Minimo de porcoes</label><input type="number" value={porcMin} onChange={e=>setPorcMin(e.target.value)} style={inp} placeholder="0"/></div>
@@ -743,22 +806,19 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 <button onClick={salvarPorc} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Salvar</button>
 </Modal>
 
-<Modal show={showGram} onClose={()=>setShowGram(false)} title=“Editar Gramatura”>
-
+<Modal show={showGram} onClose={()=>setShowGram(false)} title="Editar Gramatura">
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Gramatura por porcao (g)</label><input type="number" value={gramVal} onChange={e=>setGramVal(e.target.value)} style={inp} autoFocus/></div>
 <button onClick={()=>{setPorc(ps=>({...ps,[gramCat]:ps[gramCat].map(i=>i.id===gramId?{...i,gramatura:+gramVal||i.gramatura}:i)}));setShowGram(false);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Salvar gramatura</button>
 </Modal>
 
-<Modal show={showAddVitrine} onClose={()=>setShowAddVitrine(false)} title=“Novo Produto na Vitrine”>
-
+<Modal show={showAddVitrine} onClose={()=>setShowAddVitrine(false)} title="Novo Produto na Vitrine">
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Nome do produto</label><input type="text" value={addVitrineForm.nome} onChange={e=>setAddVitrineForm(af=>({...af,nome:e.target.value}))} style={inp} placeholder="Nome"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Quantidade minima</label><input type="number" value={addVitrineForm.minimo} onChange={e=>setAddVitrineForm(af=>({...af,minimo:e.target.value}))} style={inp} placeholder="1"/></div>
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Dias antes do vencimento</label><input type="number" value={addVitrineForm.validadeMinDias} onChange={e=>setAddVitrineForm(af=>({...af,validadeMinDias:e.target.value}))} style={inp} placeholder="2"/></div>
 <button onClick={()=>{if(!addVitrineForm.nome)return;setVitrine(vs=>[...vs,{id:"v_"+Date.now(),nome:addVitrineForm.nome,produzida:0,vendida:0,minimo:+addVitrineForm.minimo||1,validade:"",validadeMinDias:+addVitrineForm.validadeMinDias||2}]);log("Produto adicionado a vitrine","adicao",addVitrineForm.nome);setShowAddVitrine(false);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Adicionar</button>
 </Modal>
 
-<Modal show={showCozForm} onClose={()=>setShowCozForm(false)} title=“Registro de Fabricacao”>
-
+<Modal show={showCozForm} onClose={()=>setShowCozForm(false)} title="Registro de Fabricacao">
 <div style={{marginBottom:12}}>
 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 14px",background:cozEnviar?"#1a2a1a":"#1c1813",border:"1px solid "+(cozEnviar?"#4caf7d":"#2a221a"),borderRadius:10,cursor:"pointer"}} onClick={()=>setCozEnviar(v=>!v)}>
 <div><div style={{fontSize:13,fontWeight:700,color:cozEnviar?"#4caf7d":P.textMuted}}>🍞 Enviar para vitrine?</div><div style={{fontSize:10,color:P.textMuted,marginTop:2}}>Integrar com a vitrine do balcao</div></div>
@@ -775,8 +835,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 <button onClick={salvarCozinha} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Salvar registro</button>
 </Modal>
 
-<Modal show={showAvisoForm} onClose={()=>setShowAvisoForm(false)} title=“Novo Aviso”>
-
+<Modal show={showAvisoForm} onClose={()=>setShowAvisoForm(false)} title="Novo Aviso">
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Titulo</label><input type="text" value={avisoTitulo} onChange={e=>setAvisoTitulo(e.target.value)} style={inp} placeholder="Titulo do aviso"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Mensagem</label><textarea value={avisoMsg} onChange={e=>setAvisoMsg(e.target.value)} style={{...inp,minHeight:80,resize:"vertical"}} placeholder="Escreva o aviso para a equipe..."/></div>
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Prioridade</label>
@@ -785,7 +844,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 <button key={val} onClick={()=>setAvisoPrior(val)} style={{flex:1,padding:"8px 3px",borderRadius:8,border:"2px solid "+(avisoPrior===val?cor:"#2a221a"),background:avisoPrior===val?cor+"22":"transparent",color:avisoPrior===val?cor:P.textMuted,fontFamily:"inherit",fontSize:9,cursor:"pointer",fontWeight:avisoPrior===val?700:400}}>{lbl}</button>
 ))}
 </div></div>
-<button onClick={()=>{if(!avisoTitulo||!avisoMsg)return;const novo={titulo:avisoTitulo,mensagem:avisoMsg,prioridade:avisoPrior,id:Date.now(),autor:usuario,data:nowStr()};setAvisos(av=>[novo,...av]);setShowAvisoForm(false);log("Aviso criado","adicao",avisoTitulo);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Publicar aviso</button>
+<button onClick={()=>{if(!avisoTitulo||!avisoMsg)return;const novo={titulo:avisoTitulo,mensagem:avisoMsg,prioridade:avisoPrior,autor:usuario,data:nowStr()};apiPost("/avisos",novo).then(saved=>{if(saved)setAvisos(av=>[saved,...av]);});setShowAvisoForm(false);log("Aviso criado","adicao",avisoTitulo);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Publicar aviso</button>
 </Modal>
 
 </div>
