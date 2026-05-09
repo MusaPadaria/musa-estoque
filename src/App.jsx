@@ -1,35 +1,16 @@
 import{useState,useMemo,useEffect}from"react";
 const API="http://187.77.57.211:3001";
 const P={bg:"#0e0c0a",surface:"#161310",card:"#1c1813",cream:"#e8d5a3",creamDark:"#c4b07a",textMuted:"#7a6a52",textDim:"#4a3f30"};
-const NUMEROS=["5585996237360","5521966721884"];
-const ADMINS=["Henrique","Marina","Luana"];
+const NUMEROS=["5585996237360","5521966721884","5585984759324"];
+const ADMINS=["Henrique","Marina","Luana","Yuri"];
 const UNIDADES=["un","porcao","kg","g","L","ml","cx","pct","sc"];
 const ST={ok:{label:"OK",bar:"#4caf7d",tag:"#1a3326",tagText:"#4caf7d"},alerta:{label:"Baixo",bar:"#f0b429",tag:"#3a2a0a",tagText:"#f0b429"},perigo:{label:"Critico",bar:"#ff6b6b",tag:"#3a0f0f",tagText:"#ff6b6b"}};
 const VAL_ST={ok:{label:"Dentro da validade",icon:"✅",cor:"#4caf7d",bg:"#1a3326"},prestes:{label:"Prestes a vencer",icon:"⚠️",cor:"#f0b429",bg:"#3a2a0a"},critico:{label:"Vence hoje/amanha",icon:"🚨",cor:"#ff6b6b",bg:"#3a0f0f"},vencido:{label:"VENCIDO",icon:"💀",cor:"#ff4444",bg:"#2a0808"},sem:{label:"Sem validade",icon:"📅",cor:"#7a6a52",bg:"#1c1813"}};
 const TIPO_COR={atualizacao:"#4caf7d",adicao:"#6ab0f0",remocao:"#ff6b6b",edicao:"#f0b429",critico:"#ff6b6b"};
 const TIPO_ICON={atualizacao:"📦",adicao:"➕",remocao:"🗑️",edicao:"✏️",critico:"🚨"};
 const CATS_INIT=[
-{id:"proteinas",nome:"Proteinas",icon:"🥩",cor:"#ef9a9a",produtos:[
-{id:401,nome:"Camarao",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-{id:402,nome:"Carne do sol",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-{id:403,nome:"Carne moida",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-{id:404,nome:"Charque",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-{id:405,nome:"Cupim",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-{id:406,nome:"Frango",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-{id:407,nome:"Ovos",atual:0,minimo:30,perigoso:10,unidade:"un"},
-{id:408,nome:"Ovos caipira",atual:0,minimo:60,perigoso:20,unidade:"un"},
-{id:409,nome:"Pernil suino",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-]},
-{id:"frios",nome:"Frios",icon:"🧀",cor:"#fff176",produtos:[
-{id:501,nome:"Bacon fatiado",atual:0,minimo:1,perigoso:0,unidade:"un"},
-{id:502,nome:"Calabresa",atual:0,minimo:1,perigoso:0,unidade:"un"},
-{id:503,nome:"Goma para tapioca",atual:0,minimo:1,perigoso:0,unidade:"un"},
-{id:504,nome:"Manteiga",atual:0,minimo:1,perigoso:0,unidade:"kg"},
-{id:505,nome:"Manteiga da terra",atual:0,minimo:1,perigoso:0,unidade:"un"},
-{id:506,nome:"Mortadela",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
-{id:507,nome:"Nata",atual:0,minimo:1,perigoso:0,unidade:"kg"},
-{id:508,nome:"Peito de peru",atual:0,minimo:1,perigoso:0,unidade:"un"},
-{id:509,nome:"Presunto",atual:0,minimo:1,perigoso:0,unidade:"un"},
+{id:"proteinas",nome:"Proteinas",icon:"🥩",cor:"#ef9a9a",produtos:[]},
+{id:"frios",nome:"Queijos",icon:"🧀",cor:"#fff176",produtos:[
 {id:510,nome:"Queijo coalho",atual:0,minimo:1,perigoso:0,unidade:"porcao"},
 {id:511,nome:"Queijo gorgonzola",atual:0,minimo:1,perigoso:0,unidade:"un"},
 {id:512,nome:"Queijo mussarela",atual:0,minimo:1,perigoso:0,unidade:"un"},
@@ -174,10 +155,18 @@ const CATS_INIT=[
 ];
 const PORC_INIT={proteinas:[
 {id:"frango",nome:"Frango Desfiado",icon:"🍗",gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:""},
+{id:"cupim",nome:"Cupim Desfiado",icon:"🥩",gramatura:200,porcoes:0,minimo:8,perigoso:3,perdas:""},
 {id:"carne_moida",nome:"Carne Moida",icon:"🥩",gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:""},
 {id:"carne_sol",nome:"Carne do Sol Desfiada",icon:"🥩",gramatura:200,porcoes:0,minimo:10,perigoso:5,perdas:""},
-{id:"cupim",nome:"Cupim Desfiado",icon:"🥩",gramatura:200,porcoes:0,minimo:8,perigoso:3,perdas:""},
+{id:"camarao",nome:"Camarao",icon:"🦐",gramatura:200,porcoes:0,minimo:5,perigoso:2,perdas:""},
+{id:"charque",nome:"Charque",icon:"🥩",gramatura:200,porcoes:0,minimo:5,perigoso:2,perdas:""},
+{id:"ovos",nome:"Ovos",icon:"🥚",gramatura:0,porcoes:0,minimo:30,perigoso:10,perdas:""},
+{id:"ovos_caipira",nome:"Ovos Caipira",icon:"🥚",gramatura:0,porcoes:0,minimo:60,perigoso:20,perdas:""},
+{id:"bacon",nome:"Bacon Fatiado",icon:"🍖",gramatura:100,porcoes:0,minimo:5,perigoso:2,perdas:""},
 {id:"mortadela",nome:"Mortadela Fatiada",icon:"🍖",gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:""},
+{id:"calabresa",nome:"Calabresa",icon:"🌭",gramatura:150,porcoes:0,minimo:5,perigoso:2,perdas:""},
+{id:"peito_peru",nome:"Peito de Peru",icon:"🦃",gramatura:100,porcoes:0,minimo:5,perigoso:2,perdas:""},
+{id:"cogumelos",nome:"Cogumelos",icon:"🍄",gramatura:100,porcoes:0,minimo:5,perigoso:2,perdas:""},
 ],frios:[
 {id:"coalho_ralado",nome:"Queijo Coalho Ralado",icon:"🧀",gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:""},
 {id:"coalho_fatiado",nome:"Queijo Coalho Fatiado",icon:"🧀",gramatura:100,porcoes:0,minimo:10,perigoso:5,perdas:""},
@@ -212,7 +201,7 @@ async function apiGet(path){try{const r=await fetch(API+path);return await r.jso
 async function apiPost(path,data){try{const r=await fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});return await r.json();}catch(e){return null;}}
 async function apiPut(path,data){try{const r=await fetch(API+path,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});return await r.json();}catch(e){return null;}}
 async function apiDelete(path){try{await fetch(API+path,{method:"DELETE"});}catch(e){}}
-
+ 
 // ---- COMPONENTS OUTSIDE APP TO PREVENT RE-RENDER ISSUES ----
 function Modal({show,onClose,title,children}){
 if(!show)return null;
@@ -229,7 +218,7 @@ return(
 </div>
 );
 }
-
+ 
 export default function App(){
 useEffect(()=>{const l=document.createElement("link");l.href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap";l.rel="stylesheet";document.head.appendChild(l);document.body.style.fontFamily="Plus Jakarta Sans,sans-serif";},[]);
 const[inputNome,setInputNome]=useState("");
@@ -282,12 +271,19 @@ const[gramVal,setGramVal]=useState("");
 const[gramCat,setGramCat]=useState(null);
 const[gramId,setGramId]=useState(null);
 const[showAvisoForm,setShowAvisoForm]=useState(false);
+const[showAddPorc,setShowAddPorc]=useState(false);
+const[addPorcCat,setAddPorcCat]=useState(null);
+const[addPorcNome,setAddPorcNome]=useState("");
+const[addPorcIcon,setAddPorcIcon]=useState("🥩");
+const[addPorcGram,setAddPorcGram]=useState("200");
+const[addPorcMin,setAddPorcMin]=useState("10");
+const[addPorcPer,setAddPorcPer]=useState("5");
 const[avisoTitulo,setAvisoTitulo]=useState("");
 const[avisoMsg,setAvisoMsg]=useState("");
 const[avisoPrior,setAvisoPrior]=useState("normal");
-
+ 
 const isAdmin=ADMINS.includes(usuario);
-
+ 
 useEffect(()=>{
 if(!logado)return;
 // Load cats/estoque
@@ -324,7 +320,7 @@ apiGet("/cozinha").then(data=>{
 if(data&&data.length>0)setCozinha(data.sort((a,b)=>b.id-a.id));
 });
 },[logado]);
-
+ 
 // Save cats when changed
 useEffect(()=>{
 if(!logado)return;
@@ -333,7 +329,7 @@ if(data&&data.length>0){apiPut("/estoque/"+data[0].id,{id:data[0].id,value:JSON.
 else{apiPost("/estoque",{value:JSON.stringify(cats)});}
 });
 },[cats]);
-
+ 
 // Save vitrine when changed
 useEffect(()=>{
 if(!logado)return;
@@ -342,7 +338,7 @@ if(data&&data.length>0){apiPut("/vitrine/"+data[0].id,{id:data[0].id,value:JSON.
 else{apiPost("/vitrine",{value:JSON.stringify(vitrine)});}
 });
 },[vitrine]);
-
+ 
 // Save porcionamento when changed
 useEffect(()=>{
 if(!logado)return;
@@ -367,14 +363,14 @@ const avisosNaoLidos=avisos.filter(a=>!avisosLidos.includes(a.id)).length;
 const todosPorc=[...(porc.proteinas||[]).map(p=>({...p,cat:"proteinas"})),...(porc.frios||[]).map(p=>({...p,cat:"frios"}))];
 const porcCriticos=todosPorc.filter(p=>gSP(p)==="perigo").length;
 const validadesCriticas=vitrine.filter(v=>["critico","vencido"].includes(getValSt(v.validade,v.validadeMinDias))).length;
-
+ 
 function log(msg,tipo,detalhe){
 const entry={msg,tipo,detalhe,usuario,completo:nowStr()};
 setHist(h=>[entry,...h].slice(0,100));
 apiPost("/historico",entry);
 }
 function login(){if(inputNome.trim().length<2)return;setUsuario(inputNome.trim());setLogado(true);}
-
+ 
 function atualizarProd(catId,prodId){
 const val=parseFloat(novoValor);if(isNaN(val))return;
 const cat=cats.find(c=>c.id===catId);const prod=cat.produtos.find(p=>p.id===prodId);
@@ -385,7 +381,7 @@ if(val===0)sendWA("*ESTOQUE ZERADO MUSA* ❌\n\n"+cat.nome+" - "+prod.nome+"\nRe
 else if(gS(updated)==="perigo")sendWA("*ALERTA MUSA* 🚨\n\n"+cat.nome+" - "+prod.nome+"\nQtd: "+val+" "+prod.unidade+" (min: "+prod.minimo+")\nResponsavel: "+usuario+"\n"+nowStr());
 setAtualizando(null);setNovoValor("");
 }
-
+ 
 function salvarProd(){
 if(!prodNome||prodAtual===""||prodMin===""||prodPer==="")return;
 const cat=cats.find(c=>c.id===editProdCat);
@@ -400,13 +396,13 @@ log("Produto adicionado","adicao",cat.nome+" - "+item.nome);
 }
 setShowProdForm(false);
 }
-
+ 
 function removerProd(catId,prodId){
 const cat=cats.find(c=>c.id===catId);const prod=cat.produtos.find(p=>p.id===prodId);
 setCats(cs=>cs.map(c=>c.id===catId?{...c,produtos:c.produtos.filter(p=>p.id!==prodId)}:c));
 log("Produto removido","remocao",cat.nome+" - "+prod.nome);
 }
-
+ 
 function salvarPorc(){
 const catP=porc[editPorcCat];if(!catP)return;
 const item=catP.find(i=>i.id===editPorcId);if(!item)return;
@@ -418,7 +414,7 @@ if(val===0)sendWA("*PORCIONAMENTO ZERADO MUSA* ❌\n\n"+item.nome+" zerou!\nResp
 else if(gSP(updated)==="perigo")sendWA("*ALERTA PORCIONAMENTO MUSA* ✂️\n\n"+item.nome+"\nPorcoes: "+val+" (min: "+updated.minimo+")\nGramatura: "+item.gramatura+"g\nResponsavel: "+usuario+"\n"+nowStr());
 setShowPorcForm(false);
 }
-
+ 
 function salvarCozinha(){
 if(!cozInsumo)return;
 const reg={insumo:cozInsumo,und:cozUnd,porcoes:cozPorcoes,pesoFinal:cozPeso,perdas:cozPerdas,assinatura:cozAss,enviarVitrine:cozEnviar,nomeVitrine:cozNomeVitrine,data:nowStr()};
@@ -438,9 +434,9 @@ log("Enviado para vitrine","adicao",nomeV+" ("+qtd+"un)");
 setShowCozForm(false);
 setCozInsumo("");setCozUnd("");setCozPorcoes("");setCozPeso("");setCozPerdas("");setCozEnviar(false);setCozNomeVitrine("");
 }
-
+ 
 const inp={width:"100%",padding:"12px 14px",borderRadius:10,border:"1px solid #2a221a",background:"#161310",color:"#e8d5a3",fontSize:15,boxSizing:"border-box",outline:"none",fontFamily:"inherit"};
-
+ 
 if(!logado){return(
 <div style={{minHeight:"100vh",background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:20,fontFamily:"Plus Jakarta Sans,sans-serif",color:P.cream}}>
 <div style={{width:"100%",maxWidth:360}}>
@@ -459,9 +455,9 @@ if(!logado){return(
 </div>
 </div>
 );}
-
+ 
 const TABS=[["estoque","Estoque"],["vitrine","Vitrine"],["cozinha","Cozinha"],["alertas","Alertas"],["avisos","Avisos"],["historico","Hist."]];
-
+ 
 return(
 <div style={{minHeight:"100vh",background:P.bg,color:P.cream,fontFamily:"Plus Jakarta Sans,sans-serif"}}>
 <div style={{padding:"14px 14px 0"}}>
@@ -498,9 +494,9 @@ return(
 ))}
 </div>
 </div>
-
+ 
 <div style={{padding:"0 12px 120px"}}>
-
+ 
 {tab==="estoque"&&(
 <div>
 <div style={{display:"flex",gap:4,overflowX:"auto",paddingBottom:7,marginBottom:9}}>
@@ -516,11 +512,11 @@ return(
 <div style={{fontSize:13,fontWeight:700,color:catObj.cor}}>{catObj.icon} {catObj.nome}</div>
 {isAdmin&&<button onClick={()=>{setEditProdId(null);setEditProdCat(catAtiva);setProdNome("");setProdAtual("");setProdMin("");setProdPer("");setProdUnd("un");setShowProdForm(true);}} style={{background:catObj.cor+"22",border:"1px solid "+catObj.cor,color:catObj.cor,borderRadius:7,padding:"4px 9px",cursor:"pointer",fontSize:10,fontFamily:"inherit"}}>+ Add</button>}
 </div>
-<div style={{position:"relative",marginBottom:9}}>
+{catAtiva!=="proteinas"&&<div style={{position:"relative",marginBottom:9}}>
 <input type="text" value={busca} onChange={e=>setBusca(e.target.value)} placeholder={"🔍 Buscar em "+catObj.nome+"..."} style={{...inp,fontSize:12}}/>
 {busca&&<button onClick={()=>setBusca("")} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",background:"transparent",border:"none",color:P.textMuted,cursor:"pointer",fontSize:15}}>✕</button>}
-</div>
-{prodsFiltrados.map(prod=>{
+</div>}
+{catAtiva!=="proteinas"&&prodsFiltrados.map(prod=>{
 const st=gS(prod);const cfg=ST[st];const pct=Math.min(100,(prod.atual/((prod.minimo||1)*1.5))*100);
 return(
 <div key={prod.id} style={{background:P.card,border:"1px solid #2a221a",borderRadius:14,padding:"14px 14px 14px 18px",marginBottom:8,position:"relative",overflow:"hidden"}}>
@@ -554,59 +550,52 @@ return(
 );})}
 {(catAtiva==="proteinas"||catAtiva==="frios")&&(
 <div style={{marginTop:16}}>
-<div style={{fontSize:11,fontWeight:700,color:catObj.cor,marginBottom:9,letterSpacing:1}}>✂️ PORCIONAMENTO</div>
-<div style={{display:"flex",gap:4,overflowX:"auto",paddingBottom:7,marginBottom:9}}>
-{(porc[catAtiva]||[]).map(item=>{
-const st=gSP(item);const cor=st==="perigo"?"#ff6b6b":st==="alerta"?"#f0b429":"#4caf7d";
-return(
-<button key={item.id} onClick={()=>setPorcAtiva(pa=>({...pa,[catAtiva]:item.id}))} style={{flexShrink:0,padding:"5px 10px",borderRadius:18,border:"2px solid "+(porcAtiva[catAtiva]===item.id?cor:"#2a221a"),background:porcAtiva[catAtiva]===item.id?cor+"22":"transparent",color:porcAtiva[catAtiva]===item.id?cor:P.textMuted,fontFamily:"inherit",fontSize:10,cursor:"pointer",fontWeight:porcAtiva[catAtiva]===item.id?700:400,whiteSpace:"nowrap",position:"relative"}}>
-{item.icon} {item.nome}{st!=="ok"&&<span style={{position:"absolute",top:-3,right:-3,background:cor,borderRadius:"50%",width:7,height:7}}/>}
-</button>
-);
-})}
-</div>
-{(()=>{
-const item=(porc[catAtiva]||[]).find(i=>i.id===porcAtiva[catAtiva]);
-if(!item)return null;
-const st=gSP(item);const cor=st==="perigo"?"#ff6b6b":st==="alerta"?"#f0b429":"#4caf7d";
-const bg=st==="perigo"?"#1a0808":st==="alerta"?"#1a1208":"#1a3326";
-const pct=Math.min(100,(item.porcoes/((item.minimo||1)*1.5))*100);
-return(
-<div style={{background:P.card,border:"2px solid "+cor+"55",borderRadius:13,padding:13}}>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:9}}>
-<div>
-<div style={{fontSize:13,fontWeight:700}}>{item.icon} {item.nome}</div>
-<div style={{fontSize:9,color:P.textMuted,marginTop:1}}>Gramatura: {item.gramatura}g/porcao</div>
+<div style={{fontSize:11,fontWeight:700,color:catObj.cor,letterSpacing:1}}>✂️ PORCIONAMENTO</div>
+<button onClick={()=>{setShowAddPorc(true);setAddPorcCat(catAtiva);setAddPorcNome("");setAddPorcIcon("🥩");setAddPorcGram("200");setAddPorcMin("10");setAddPorcPer("5");}} style={{background:catObj.cor+"22",border:"1px solid "+catObj.cor,color:catObj.cor,borderRadius:7,padding:"4px 9px",cursor:"pointer",fontSize:10,fontFamily:"inherit"}}>+ Adicionar</button>
+</div>
+{(porc[catAtiva]||[]).map(item=>{
+const st=gSP(item);const cfg=ST[st];const pct=Math.min(100,(item.porcoes/((item.minimo||1)*1.5))*100);
+return(
+<div key={item.id} style={{background:P.card,border:"1px solid #2a221a",borderRadius:14,padding:"14px 14px 14px 18px",marginBottom:8,position:"relative",overflow:"hidden"}}>
+<div style={{position:"absolute",left:0,top:0,bottom:0,width:3,background:cfg.bar}}/>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+<div style={{flex:1}}>
+<div style={{fontWeight:700,fontSize:14}}>{item.icon} {item.nome}</div>
+<div style={{fontSize:9,color:P.textMuted,marginTop:2,textTransform:"uppercase"}}>Gramatura: {item.gramatura}g · Min {item.minimo} · Perigo {item.perigoso}</div>
 </div>
 <div style={{display:"flex",gap:4,alignItems:"center"}}>
-<span style={{background:bg,color:cor,fontSize:8,fontWeight:700,padding:"2px 6px",borderRadius:18,textTransform:"uppercase"}}>{st==="perigo"?"Critico":st==="alerta"?"Baixo":"OK"}</span>
+<span style={{background:cfg.tag,color:cfg.tagText,fontSize:8,fontWeight:700,padding:"2px 7px",borderRadius:20,textTransform:"uppercase"}}>{cfg.label}</span>
 <button onClick={()=>{setGramCat(catAtiva);setGramId(item.id);setGramVal(String(item.gramatura));setShowGram(true);}} style={{background:"transparent",border:"1px solid #2a221a",color:P.textMuted,borderRadius:6,padding:"2px 6px",cursor:"pointer",fontSize:9,fontFamily:"inherit"}}>✏g</button>
 </div>
 </div>
-<div style={{background:"#0a0806",borderRadius:99,height:3,marginBottom:9,overflow:"hidden"}}>
-<div style={{width:pct+"%",height:"100%",background:cor,borderRadius:99}}/>
+<div style={{background:"#0a0806",borderRadius:99,height:3,marginBottom:8,overflow:"hidden"}}>
+<div style={{width:pct+"%",height:"100%",background:cfg.bar,borderRadius:99}}/>
 </div>
-<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5,marginBottom:9}}>
-{[{l:"Porcoes",v:item.porcoes,c:cor},{l:"Minimo",v:item.minimo,c:P.textMuted},{l:"Perigoso",v:item.perigoso,c:"#ff6b6b"}].map(s=>(
+<div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5,marginBottom:8}}>
+{[{l:"Atual",v:item.porcoes,c:cfg.bar},{l:"Minimo",v:item.minimo,c:P.textMuted},{l:"Perigoso",v:item.perigoso,c:"#ff6b6b"}].map(s=>(
 <div key={s.l} style={{background:P.surface,borderRadius:7,padding:"6px 4px",textAlign:"center",border:"1px solid #2a221a"}}>
-<div style={{fontSize:15,fontWeight:700,color:s.c}}>{s.v}</div>
+<div style={{fontSize:18,fontWeight:700,color:s.c}}>{s.v}</div>
 <div style={{fontSize:8,color:P.textMuted,textTransform:"uppercase",letterSpacing:1,marginTop:1}}>{s.l}</div>
 </div>
 ))}
 </div>
 {st==="perigo"&&<div style={{background:"#1a0808",border:"1px solid #ff6b6b44",borderRadius:7,padding:"6px 9px",marginBottom:7,fontSize:11,color:"#ff9090"}}>🚨 Porcionamento critico! Repor urgente.</div>}
 {st==="alerta"&&<div style={{background:"#1a1208",border:"1px solid #f0b42944",borderRadius:7,padding:"6px 9px",marginBottom:7,fontSize:11,color:"#f0d090"}}>⚠️ Porcionamento baixo.</div>}
-<button onClick={()=>{setEditPorcCat(catAtiva);setEditPorcId(item.id);setPorcPorcoes(String(item.porcoes));setPorcPerdas(item.perdas||"");setPorcMin(String(item.minimo));setPorcPer(String(item.perigoso));setShowPorcForm(true);}} style={{width:"100%",padding:9,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:9,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit"}}>✏ Atualizar porcionamento</button>
+<div style={{display:"flex",gap:5}}>
+<button onClick={()=>{setEditPorcCat(catAtiva);setEditPorcId(item.id);setPorcPorcoes(String(item.porcoes));setPorcPerdas(item.perdas||"");setPorcMin(String(item.minimo));setPorcPer(String(item.perigoso));setShowPorcForm(true);}} style={{flex:1,background:P.card,border:"1px solid #2a221a",color:P.creamDark,borderRadius:7,padding:"5px 10px",cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>Atualizar</button>
+{isAdmin&&<button onClick={()=>setPorc(ps=>({...ps,[catAtiva]:ps[catAtiva].filter(i=>i.id!==item.id)}))} style={{background:"transparent",border:"1px solid #3a1515",color:"#6b2020",borderRadius:7,padding:"5px 8px",cursor:"pointer",fontSize:12}}>✕</button>}
+</div>
 </div>
 );
-})()}
+})}
 </div>
 )}
 </div>
 )}
 </div>
 )}
-
+ 
 {tab==="vitrine"&&(
 <div>
 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
@@ -662,7 +651,7 @@ return(
 <button onClick={()=>{setVitrine(vs=>vs.map(p=>({...p,produzida:0,vendida:0})));log("Vitrine resetada","edicao","Zerados");}} style={{width:"100%",marginTop:5,padding:11,background:"transparent",border:"1px solid #3a1515",color:"#6b2020",borderRadius:11,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>🔄 Zerar producao do dia</button>
 </div>
 )}
-
+ 
 {tab==="cozinha"&&(
 <div>
 <div style={{fontSize:12,color:P.textMuted,marginBottom:10,padding:"8px 11px",background:P.card,border:"1px solid #2a221a",borderRadius:9}}>Registre a fabricacao. Marque se o produto vai para a vitrine.</div>
@@ -710,7 +699,7 @@ return(
 )}
 </div>
 )}
-
+ 
 {tab==="alertas"&&(
 <div>
 {perigo.length===0&&porcCriticos===0&&validadesCriticas===0?(<div style={{textAlign:"center",padding:"50px 20px"}}><div style={{fontSize:46,marginBottom:10}}>🌿</div><div style={{fontSize:17,color:"#4caf7d",fontWeight:700}}>Tudo OK!</div><div style={{fontSize:12,color:P.textMuted,marginTop:5}}>Estoque e validades dentro do normal.</div></div>):(
@@ -741,7 +730,7 @@ return(<div key={cat.id} style={{marginBottom:13}}>
 )}
 </div>
 )}
-
+ 
 {tab==="avisos"&&(
 <div>
 {isAdmin&&<button onClick={()=>{setAvisoTitulo("");setAvisoMsg("");setAvisoPrior("normal");setShowAvisoForm(true);}} style={{width:"100%",padding:11,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit",marginBottom:10}}>+ Novo aviso</button>}
@@ -772,7 +761,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 )}
 </div>
 )}
-
+ 
 {tab==="historico"&&(
 <div>
 <select value={filtroUser} onChange={e=>setFiltroUser(e.target.value)} style={{...inp,marginBottom:9,fontSize:12}}>
@@ -788,7 +777,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 </div>
 )}
 </div>
-
+ 
 <Modal show={showProdForm} onClose={()=>setShowProdForm(false)} title={editProdId?"Editar Produto":"Novo Produto"}>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Nome</label><input type="text" value={prodNome} onChange={e=>setProdNome(e.target.value)} style={inp} placeholder="Nome do produto"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Quantidade atual</label><input type="number" value={prodAtual} onChange={e=>setProdAtual(e.target.value)} style={inp} placeholder="0"/></div>
@@ -797,7 +786,7 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Unidade</label><select value={prodUnd} onChange={e=>setProdUnd(e.target.value)} style={inp}>{UNIDADES.map(u=><option key={u} value={u}>{u}</option>)}</select></div>
 <button onClick={salvarProd} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>{editProdId?"Salvar":"Adicionar"}</button>
 </Modal>
-
+ 
 <Modal show={showPorcForm} onClose={()=>setShowPorcForm(false)} title="Atualizar Porcionamento">
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Quantidade de porcoes</label><input type="number" value={porcPorcoes} onChange={e=>setPorcPorcoes(e.target.value)} style={inp} placeholder="0"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Perdas (opcional)</label><input type="text" value={porcPerdas} onChange={e=>setPorcPerdas(e.target.value)} style={inp} placeholder="Perdas"/></div>
@@ -805,19 +794,19 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Nivel perigoso</label><input type="number" value={porcPer} onChange={e=>setPorcPer(e.target.value)} style={inp} placeholder="0"/></div>
 <button onClick={salvarPorc} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Salvar</button>
 </Modal>
-
+ 
 <Modal show={showGram} onClose={()=>setShowGram(false)} title="Editar Gramatura">
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Gramatura por porcao (g)</label><input type="number" value={gramVal} onChange={e=>setGramVal(e.target.value)} style={inp} autoFocus/></div>
 <button onClick={()=>{setPorc(ps=>({...ps,[gramCat]:ps[gramCat].map(i=>i.id===gramId?{...i,gramatura:+gramVal||i.gramatura}:i)}));setShowGram(false);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Salvar gramatura</button>
 </Modal>
-
+ 
 <Modal show={showAddVitrine} onClose={()=>setShowAddVitrine(false)} title="Novo Produto na Vitrine">
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Nome do produto</label><input type="text" value={addVitrineForm.nome} onChange={e=>setAddVitrineForm(af=>({...af,nome:e.target.value}))} style={inp} placeholder="Nome"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Quantidade minima</label><input type="number" value={addVitrineForm.minimo} onChange={e=>setAddVitrineForm(af=>({...af,minimo:e.target.value}))} style={inp} placeholder="1"/></div>
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Dias antes do vencimento</label><input type="number" value={addVitrineForm.validadeMinDias} onChange={e=>setAddVitrineForm(af=>({...af,validadeMinDias:e.target.value}))} style={inp} placeholder="2"/></div>
 <button onClick={()=>{if(!addVitrineForm.nome)return;setVitrine(vs=>[...vs,{id:"v_"+Date.now(),nome:addVitrineForm.nome,produzida:0,vendida:0,minimo:+addVitrineForm.minimo||1,validade:"",validadeMinDias:+addVitrineForm.validadeMinDias||2}]);log("Produto adicionado a vitrine","adicao",addVitrineForm.nome);setShowAddVitrine(false);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Adicionar</button>
 </Modal>
-
+ 
 <Modal show={showCozForm} onClose={()=>setShowCozForm(false)} title="Registro de Fabricacao">
 <div style={{marginBottom:12}}>
 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 14px",background:cozEnviar?"#1a2a1a":"#1c1813",border:"1px solid "+(cozEnviar?"#4caf7d":"#2a221a"),borderRadius:10,cursor:"pointer"}} onClick={()=>setCozEnviar(v=>!v)}>
@@ -834,7 +823,16 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 <div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Assinatura</label><input type="text" value={cozAss} onChange={e=>setCozAss(e.target.value)} style={inp} placeholder="Seu nome"/></div>
 <button onClick={salvarCozinha} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Salvar registro</button>
 </Modal>
-
+ 
+<Modal show={showAddPorc} onClose={()=>setShowAddPorc(false)} title="Novo Porcionamento">
+<div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Nome</label><input type="text" value={addPorcNome} onChange={e=>setAddPorcNome(e.target.value)} style={inp} placeholder="Ex: Frango Desfiado"/></div>
+<div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Icone (emoji)</label><input type="text" value={addPorcIcon} onChange={e=>setAddPorcIcon(e.target.value)} style={inp} placeholder="🥩"/></div>
+<div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Gramatura (g)</label><input type="number" value={addPorcGram} onChange={e=>setAddPorcGram(e.target.value)} style={inp} placeholder="200"/></div>
+<div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Minimo de porcoes</label><input type="number" value={addPorcMin} onChange={e=>setAddPorcMin(e.target.value)} style={inp} placeholder="10"/></div>
+<div style={{marginBottom:16}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Nivel perigoso</label><input type="number" value={addPorcPer} onChange={e=>setAddPorcPer(e.target.value)} style={inp} placeholder="5"/></div>
+<button onClick={()=>{if(!addPorcNome)return;const novo={id:"porc_"+Date.now(),nome:addPorcNome,icon:addPorcIcon||"🥩",gramatura:+addPorcGram||200,porcoes:0,minimo:+addPorcMin||10,perigoso:+addPorcPer||5,perdas:""};setPorc(ps=>({...ps,[addPorcCat]:[...(ps[addPorcCat]||[]),novo]}));setShowAddPorc(false);log("Porcionamento adicionado","adicao",addPorcNome);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Adicionar</button>
+</Modal>
+ 
 <Modal show={showAvisoForm} onClose={()=>setShowAvisoForm(false)} title="Novo Aviso">
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Titulo</label><input type="text" value={avisoTitulo} onChange={e=>setAvisoTitulo(e.target.value)} style={inp} placeholder="Titulo do aviso"/></div>
 <div style={{marginBottom:10}}><label style={{display:"block",fontSize:8,color:P.textMuted,letterSpacing:2,textTransform:"uppercase",marginBottom:5}}>Mensagem</label><textarea value={avisoMsg} onChange={e=>setAvisoMsg(e.target.value)} style={{...inp,minHeight:80,resize:"vertical"}} placeholder="Escreva o aviso para a equipe..."/></div>
@@ -846,7 +844,8 @@ return(<div key={a.id} style={{background:P.card,border:"1px solid "+(naoLido?co
 </div></div>
 <button onClick={()=>{if(!avisoTitulo||!avisoMsg)return;const novo={titulo:avisoTitulo,mensagem:avisoMsg,prioridade:avisoPrior,autor:usuario,data:nowStr()};apiPost("/avisos",novo).then(saved=>{if(saved)setAvisos(av=>[saved,...av]);});setShowAvisoForm(false);log("Aviso criado","adicao",avisoTitulo);}} style={{width:"100%",padding:13,background:"linear-gradient(135deg,#6b1f2a,#2d5a3d)",color:P.cream,border:"none",borderRadius:11,cursor:"pointer",fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Publicar aviso</button>
 </Modal>
-
+ 
 </div>
 );
 }
+ 
